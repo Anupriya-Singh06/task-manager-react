@@ -1,23 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+
+import TaskInput from "./components/TaskInput";
+import TaskList from "./components/TaskList";
+import ProgressBar from "./components/ProgressBar";
+import SearchBar from "./components/SearchBar";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 function App() {
+
+  const [tasks, setTasks] = useLocalStorage("tasks", []);
+  const [query, setQuery] = useState("");
+
+  const addTask = (text) => {
+    setTasks([
+      ...tasks,
+      { text: text, completed: false }
+    ]);
+  };
+
+  const toggleTask = (index) => {
+    const updated = [...tasks];
+    updated[index].completed = !updated[index].completed;
+    setTasks(updated);
+  };
+
+  const deleteTask = (index) => {
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    setTasks(updatedTasks);
+  };
+
+  const filteredTasks = tasks.filter(task =>
+    task.text.toLowerCase().includes(query.toLowerCase())
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ width: "400px", margin: "40px auto", textAlign: "center" }}>
+
+      <h1>Task Manager 🚀</h1>
+
+      <TaskInput addTask={addTask} />
+
+      <SearchBar setQuery={setQuery} />
+
+      <ProgressBar tasks={tasks} />
+
+      <TaskList
+        tasks={filteredTasks}
+        toggleTask={toggleTask}
+        deleteTask={deleteTask}
+      />
+
     </div>
   );
 }
